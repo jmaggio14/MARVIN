@@ -10,15 +10,35 @@ class CameraCapture(object):
         self.__setProp(cv2.CAP_PROP_FOURCC,self._fourcc_val)
 
 
-    def read(self,frame):
-        if self.cap.isOpened()
-        self.cap.read()
+    def read(self):
+        status = False
+        if self.cap.isOpened():
+            status,frame = self.cap.read()
+        if not status:
+            frame = self.__debugFrame()
+
+        return frame
 
     def __setProp(self,flag,value):
         return self.cap.set(flag,value)
 
     def __getProp(self,flag):
         return self.cap.get()
+
+    def __debugFrame(self):
+        h,w = self.height,self.width
+        if isinstance(h,type(None)) or isinstance(w,type(None)):
+            h,w = 256,256
+
+        frame = np.zeros( (h,w), dtype=np.uint8 )
+        centroid = marvin.centroid(frame)
+        frame = cv2.putText(frame,
+                            "error opening or reading image",
+                            centroid,
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            12,
+                            (255,255))
+        return frame
 
     #width
     @property

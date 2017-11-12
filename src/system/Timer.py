@@ -27,7 +27,7 @@ class Timer(object):
 
     def reset(self):
         """ resets the timer start time """
-        self._start = time.time()
+        self.__init__()
 
     def set_countdown(self,value):
         self.countdown = value
@@ -68,10 +68,12 @@ class Timer(object):
 if __name__ == "__main__":
     import time
     timer = Timer()
-    timer.countdown = 5
+    timer.countdown = 50
     print(timer.countdown)
     time.sleep(3)
     print(timer.countdown)
+    print("reseting...")
+    timer.reset()
 
 
     #

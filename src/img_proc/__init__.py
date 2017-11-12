@@ -1,4 +1,4 @@
 from .Capture import *
 from .ImageViewer import *
 from .ImageWriter import *
-from .misc import *
+from .accessory import *

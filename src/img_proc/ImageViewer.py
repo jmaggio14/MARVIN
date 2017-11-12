@@ -8,7 +8,9 @@ class Cv2ImageViewer(object):
         self.interpolation = interpolation
         cv2.namedWindow(self.window_name)
 
-    def view(self,frame):
+    def view(self,frame,force_waitkey=True):
         if isinstance(self.size,(tuple,list)):
             frame = cv2.resize(frame,(self.size[1],self.size[0]),interpolation=self.interpolation)
         cv2.imshow(self.window_name,frame)
+        if force_waitkey:
+            cv2.waitKey( force_waitkey )

@@ -89,7 +89,7 @@ exception: {3} {4}
     raise SystemExit
 
 
-def typeCheck(var,types,var_name="var"):
+def typeCheck(var,types):
     if not isinstance(types,(tuple,list)): types = tuple(types)
     if isinstance(var,types):
         return True

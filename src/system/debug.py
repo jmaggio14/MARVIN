@@ -68,7 +68,7 @@ def outerFileN():
         frame = frame.f_back
     return frame.co_filename
 
-def debug(exception,message=""):
+def debug(exception,raise_system_exit=True,message=""):
     if message != "": "\r\n\r\nNote: "+message
     f = outerFile()
     lineno = outerLineno()
@@ -86,7 +86,8 @@ exception: {3} {4}
 ===============================================================
 """.format(f,lineno,exc_type,exception,message)
 )
-    raise SystemExit
+    if raise_system_exit:
+        raise SystemExit
 
 
 def typeCheck(var,types):

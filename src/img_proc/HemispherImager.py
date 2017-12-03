@@ -19,6 +19,7 @@ class HemisphereImager(object):
         input::
             None
         return::
+            list of frames from each camera
         """
         frames = []
         frames.append( self.cap1.read() )
@@ -27,4 +28,5 @@ class HemisphereImager(object):
         frames.append( self.cap4.read() )
         self.cache["frame"] = frames
         return frames
+
     def pana

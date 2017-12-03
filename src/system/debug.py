@@ -3,78 +3,92 @@ import sys
 import os
 import traceback
 import inspect
+import marvin
 
+# def currentLineno():
+#     """
+#     returns the linenumber of the line that calls this function
+#     input::
+#         None
+#     return::
+#         linenumber of the last frame (the frame that calls this function)
+#     """
+#     cf = inspect.currentframe()
+#     return cf.f_back.f_lineno
+# def currentFile():
+#     cf = inspect.currentframe()
+#     return cf.f_back.co_filename
+#
+#
+# def outerLineno():
+#     """
+#     returns the linenumber of the call that called of this function
+#     input::
+#         None
+#     return::
+#         linenumber 2 frames back (the linenumber that called the function that called this function )
+#     """
+#     cf = inspect.currentframe()
+#     return cf.f_back.f_back.f_lineno
+# def outerFile():
+#     cf = inspect.currentframe()
+#     return cf.f_back.f_back.co_filename
+#
+#
+# def outerLineno2():
+#     """
+#     returns the linenumber of the line that called the line that called the line that called this function
+#     (3 frames back)
+#     input::
+#         None
+#     return::
+#         line number 3 frames back
+#     """
+#     cf = inspect.currentframe()
+#     return cf.f_back.f_back.f_back.f_lineno
+# def outerFile2():
+#     cf = inspect.currentframe()
+#     return cf.f_back.f_back.f_back.co_filename
+#
+# def outerLinenoN(N):
+#     """
+#     returns the line number N frames back
+#     input::
+#         N -- number of frames back
+#     return::
+#         line number of the frame N frames back
+#     """
+#     frame = inspect.currentframe()
+#     for i in range(N):
+#         frame = frame.f_back
+#     return frame.f_lineno
+# def outerFileN():
+#     frame = inspect.currentframe()
+#     for i in range(N):
+#         frame = frame.f_back
+#     return frame.co_filename
 
-def currentLineno():
-    """
-    returns the linenumber of the line that calls this function
-    input::
-        None
-    return::
-        linenumber of the last frame (the frame that calls this function)
-    """
-    cf = inspect.currentframe()
-    return cf.f_back.f_lineno
-def currentFile():
-    cf = inspect.currentframe()
-    return cf.f_back.co_filename
-
-
-def outerLineno():
-    """
-    returns the linenumber of the call that called of this function
-    input::
-        None
-    return::
-        linenumber 2 frames back (the linenumber that called the function that called this function )
-    """
-    cf = inspect.currentframe()
-    return cf.f_back.f_back.f_lineno
-def outerFile():
-    cf = inspect.currentframe()
-    return cf.f_back.f_back.co_filename
-
-
-def outerLineno2():
-    """
-    returns the linenumber of the line that called the line that called the line that called this function
-    (3 frames back)
-    input::
-        None
-    return::
-        line number 3 frames back
-    """
-    cf = inspect.currentframe()
-    return cf.f_back.f_back.f_back.f_lineno
-def outerFile2():
-    cf = inspect.currentframe()
-    return cf.f_back.f_back.f_back.co_filename
-
-def outerLinenoN(N):
-    """
-    returns the line number N frames back
-    input::
-        N -- number of frames back
-    return::
-        line number of the frame N frames back
-    """
-    frame = inspect.currentframe()
-    for i in range(N):
-        frame = frame.f_back
-    return frame.f_lineno
-def outerFileN():
-    frame = inspect.currentframe()
-    for i in range(N):
-        frame = frame.f_back
-    return frame.co_filename
 
 def debug(exception,raise_system_exit=True,message=""):
+    """
+    simplifies the debugging traceback dialogue by printing a simplified version
+    of the traceback to the terminal.
+    After printing, this function raises a SystemExit
+    input::
+        exception (Exception): exception
+        raise_system_exit (bool): boolean indicating whether to raise a SystemExit
+        message (str): additional message to print, if desired
+    return::
+        None
+    """
     if message != "": "\r\n\r\nNote: "+message
-    f = outerFile()
-    lineno = outerLineno()
+    # f = outerFile()
+    # lineno = outerLineno()
     exc_type,_,tb = sys.exc_info()
+    f = os.path.split(tb.tb_frame.f_code.co_filename)[1]
+    lineno = tb.tb_lineno
     traceback.print_tb(tb)
-    print(
+    print(marvin.textColor(
 """
 ===============================================================
                     |  initital traceback  |
@@ -84,24 +98,45 @@ type: {2}
 
 exception: {3} {4}
 ===============================================================
-""".format(f,lineno,exc_type,exception,message)
+""".format(f,lineno,exc_type,exception,message),'r')
 )
     if raise_system_exit:
         raise SystemExit
 
 
 def typeCheck(var,types):
-    if not isinstance(types,(tuple,list)): types = tuple(types)
+    """
+    checks to see if a variable is one of the given types
+    input::
+        var (any type): the variable to type check
+        types (any type): type or tuple of types to check
+    return::
+        is_type (bool): indicator indicating whether or not the variable is
+                among the types given
+    """
+    if types == None: types = type(None)
     if isinstance(var,types):
-        return True
+        is_type = True
     else:
-        return False
+        is_type = False
+    return is_type
 
-def boundaryCheck(var,boundaries,var_name="var",inclusive=True):
+def boundaryCheck(var,boundaries,inclusive=True):
+    """
+    checks to see if a guven float or int is within a set of boundaries.
+    input::
+        var (float,int): number to check
+        boundaries (tuple,list): 2 element tuple or list of boundaries structured
+        (low_val,high_val), None can be used in place of '-inf' or 'inf'
+        inclusive (bool): whether or not boundaryCheck is inclusive of the boundaries
+    return::
+        in_bounds: boolean indicating whether or not the value is within bounds
+
+    """
     low_val = boundaries[0]
     high_val = boundaries[1]
-    if low_val == None: low_val = -float('inf')
-    if high_val == None: high_val = float('inf')
+    if low_val in [None,'-inf']: low_val = -float('inf')
+    if high_val in [None,'inf']: high_val = float('inf')
 
     if inclusive:
         if var <= boundaries[1]:high_ok = True
@@ -113,22 +148,31 @@ def boundaryCheck(var,boundaries,var_name="var",inclusive=True):
         else: high_ok = False
         if var > boundaries[0]: low_ok = True
         else:low_ok = False
-    return low_ok and high_ok
+    in_bounds = low_ok and high_ok
+    return in_bounds
 
 if __name__ == "__main__":
     print("boundaryCheck check not inclusive")
-    a = boundaryCheck(5,(5,50),"5",False)
+    a = boundaryCheck(5,(5,50),False)
     print(a)
     print("boundaryCheck check inclusive")
-    a = boundaryCheck(5,(5,50),"5",True)
+    a = boundaryCheck(5,(5,50),True)
     print(a)
+
+
+    print("checking typeCheck...")
+    a = typeCheck(True,bool)
+    b = typeCheck(50.5,int)
+    print("it worked if this next value prints True: {0}".format(a and not b))
+
+
+    print("testing debug()")
     def test():
         try:
             raise TypeError
         except Exception as e:
             debug(e,"test")
     test()
-# def debug(exception):
 
 # 	"""
 # 	simple method to remove unecessary clutter in debugging

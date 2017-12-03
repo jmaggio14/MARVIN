@@ -1,3 +1,4 @@
+import os
 import ctypes
 
 """
@@ -45,8 +46,16 @@ $ gcc -o test_lib.so -shared -fPIC test.c
 
             python binding code
 ---------------------------------------
-c_test_lib = ctypes.cdll.LoadLibrary("test_lib.so")
-#this is where the function is actually created
+# this assumes that your shared library is in the same directory as the python
+# binding code
+
+import ctypes
+import os
+
+dir_prefix = os.path.dirname(os.path.realpath(__file__)) + "/"
+
+c_test_lib = ctypes.cdll.LoadLibrary(dir_prefix + "test_lib.so")
+# this is where the function is actually created
 c_testFunc = c_test_lib.testFunc
 c_testFunc.restype = ctypes.c_uint
 
@@ -100,8 +109,9 @@ https://intermediate-and-advanced-software-carpentry.readthedocs.io/en/latest/c+
 #     out = ctypes.c_int( c_testFunc(input1) ).value
 #     return out
 
+dir_prefix = os.path.dirname(os.path.realpath(__file__)) + "/"
 
-c_pwm_lib = ctypes.cdll.LoadLibrary("pwm.so")
+c_pwm_lib = ctypes.cdll.LoadLibrary(dir_prefix + "pwm.so")
 c_pulseWidthModulation = c_pwm_lib.pulseWidthModulation
 c_pulseWidthModulation.restype = ctypes.c_int
 

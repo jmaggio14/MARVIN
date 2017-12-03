@@ -1,6 +1,7 @@
 from .constants import *
 from .output import *
 from .console import *
+from .constants import *
 from .debug import *
 from .Logger import *
 from .output import *

@@ -32,8 +32,8 @@ def init(log_level=20,log_filename="output/logs/base_log.log",*args,**kwargs):
         marvin.Status.warning("sam is already initialized!")
 
     return marvin.Status,marvin.Event
-
-def addLogger(logger_name,log_level=20,logger_type=marvin.LOGGER_STATUS,*args,**kwargs):
+#
+def addLogger(logger_name,log_level=20,logger_type=None,*args,**kwargs):
     """
     adds a logger to the logger dictionary stack
 
@@ -43,6 +43,8 @@ def addLogger(logger_name,log_level=20,logger_type=marvin.LOGGER_STATUS,*args,**
         logger_type (marvin const): type of logger you want to create, either
                     marvin.LOGGER_STATUS or marvin.LOGGER_EVENT as of 11/20/17
     """
+    if marvin.typeCheck(logger_type,None): logger_type = marvin.LOGGER_STATUS
+
     if logger_type == marvin.LOGGER_STATUS:
         marvin.loggers[logger_name] = marvin.StatusLogger(log_level,*args,**kwargs)
     elif logger_type == marvin.LOGGER_EVENT:

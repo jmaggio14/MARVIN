@@ -1,6 +1,7 @@
 import cv2
 import marvin
 import numpy as np
+import time
 
 class CameraCapture(object):
     """
@@ -11,7 +12,7 @@ class CameraCapture(object):
         cam_id (int,str): camera id, this can be a video file, a camera path of
                     the type ('/dev/video#'), or an integer id (the last number in the camera path)
         fourcc (str,tuple,list): fourcc code for the video codec to be forced off the camera,
-                        reccomend sticking with MJPG as it is supported by most
+                        reccomend sticking with MJPG (the default) as it is supported by most
                         cammeras and generally results in a high framerate even
                         on cheap camera hardware
 
@@ -22,6 +23,8 @@ class CameraCapture(object):
 
     functions::
         read(): reads image frame
+        getAllMetadata(): retrieves all metadata at the current state
+        readFrameAndMetadata(): retrieves both the frame and metadata
         __setProp(): sets camera property
         __getProp(): gets camera property
         __debugFrame(): generates a static debuging frame
@@ -87,6 +90,51 @@ class CameraCapture(object):
             frame = self.__debugFrame()
 
         return frame
+
+    def getAllMetadata(self):
+        """
+        UNTESTED!
+
+        grabs all metadata from the frame using the metadata properties and outputs
+        it in an easy to use dictionary. also adds key "unix_time", which is the time.time()
+        at the time the metadata is collected
+        WARNING - what metadata is available is dependent on what camera is attached!
+
+        input::
+            None
+        return::
+            metadata(dict): dictionary containing all metadata values
+        """
+        metadata = {
+        "width":self.width,
+        "height":self.height,
+        "fps":self.fps,
+        "contrast":self.contrast,
+        "brightness":self.brightness,
+        "hue":self.hue,
+        "gain":self.gain,
+        "exposure":self.exposure,
+        "writer_dims":self.writer_dims,
+        "fourcc":self.fourcc,
+        "fourcc_val":self.fourcc_val,
+        "unix_time":time.time()
+        }
+        return metadata
+
+    def readFrameAndMetadata(self):
+        """
+        UNTESTED!
+
+        returns both the image frame and all associated metadata
+        input::
+            None
+        return::
+            frame (np.ndarray): frame from the camera, see CameraCapture.read()
+            metadata (dict): metadata associated with the current frame, see CameraCapture.metadata()
+        """
+        frame = self.frame()
+        metadata = self.metadata()
+        return frame,metadata
 
     def __setProp(self,flag,value):
         """

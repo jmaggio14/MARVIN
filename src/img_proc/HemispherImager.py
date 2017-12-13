@@ -1,4 +1,5 @@
 import marvin
+import cv2
 
 
 
@@ -9,6 +10,8 @@ class HemisphereImager(object):
         self.cap2 = marvin.CameraCapture( cam_id2 )
         self.cap3 = marvin.CameraCapture( cam_id3 )
         self.cap4 = marvin.CameraCapture( cam_id4 )
+
+        self.ORB = cv2.ORB_create()
 
         self.cache = {"frames":None,
                       "panorama":None}
@@ -28,5 +31,3 @@ class HemisphereImager(object):
         frames.append( self.cap4.read() )
         self.cache["frame"] = frames
         return frames
-
-    def pana

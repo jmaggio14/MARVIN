@@ -14,7 +14,7 @@ class MarvinImage(np.ndarray):
     def __array_finalize__(self,obj):
         if obj is None: return
         # print(dir(obj))
-        self.src = getattr(obj,"frame_id",None)
+        self.src = getattr(obj,"src",None)
         self.id = getattr(obj,"id",None)
 
     def __array_wrap__(self,out_arr,context=None):

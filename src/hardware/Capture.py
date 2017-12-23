@@ -17,6 +17,7 @@ class CameraCapture(object):
                         on cheap camera hardware
 
     attributes::
+        cam_id (str,int): id of the camera being used, passed in as an input
         cap (cv2.VideoCapture): camera capture object
         _fourcc (str,tuple,list): current fourcc code
         _fourcc_val: current fourcc_val ( VideoCapture_fourcc(fourcc) )
@@ -67,10 +68,12 @@ class CameraCapture(object):
         if marvin.typeCheck(cam_id,str):
             if "/dev/video" in cam_id:
                 cam_id = int( cam_id.replace("/dev/video","") )
-        self.cap = cv2.VideoCapture(cam_id)
+        self.cam_id = cam_id
+        self.cap = cv2.VideoCapture(self.cam_id)
         self._fourcc = fourcc
         self._fourcc_val = cv2.VideoWriter_fourcc(*self._fourcc)
         self.__setProp(cv2.CAP_PROP_FOURCC,self._fourcc_val)
+        self.frame_number = 0
 
 
     def read(self):
@@ -89,6 +92,7 @@ class CameraCapture(object):
         if not status or not self.cap.isOpened():
             frame = self.__debugFrame()
 
+        self.frame_number += 1
         return frame
 
     def getAllMetadata(self):

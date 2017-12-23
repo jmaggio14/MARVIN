@@ -69,7 +69,7 @@ class Timer(object):
                 func(*args,**kwargs)
                 self.__interval_countdown = interval
 
-        #checking
+        #checking for infinite run time
         if Exit_Status == None:
             while True:
                 run()
@@ -113,6 +113,8 @@ class Timer(object):
         """sets the countdown timer"""
         if isinstance(value,(int,float)):
             self._countdown = float(value)
+        else:
+            marvin.Status.critical("countdown must be set using a float or an int, current type is {0}".format(type(value)))
 
     @property
     def __interval_countdown(self):

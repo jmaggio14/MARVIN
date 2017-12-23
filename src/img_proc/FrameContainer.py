@@ -56,17 +56,25 @@ class FrameContainer(object):
     def keypoints(self):
         if self.cache["keypoints"] == None:
             self.cache["keypoints"] = self.ORB.detect(self.src)
-        else:
-            return self.cache["keypoints"]
+
+        return self.cache["keypoints"]
 
     @property
     def descriptors(self):
         if self.cache["descriptors"] == None:
             self.cache["descriptors"] = self.ORB.compute(self.src,self.keypoints)
-        else:
-            return self.cache["descriptors"]
+
+        return self.cache["descriptors"]
 
     @property
     def undistorted(self):
         pass
         #PLACEHOLDER FUNCTION -- requires computing the distortion maps
+
+
+    @property
+    def frame_with_keypoints(self):
+        if self.cache["frame_with_keypoints"] == None:
+            self.cache["frame_with_keypoints"] = self.ORB.drawKeypoints(self.src, kp, None, color=(0,255,0))
+
+        return self.cache["frame_with_keypoints"]

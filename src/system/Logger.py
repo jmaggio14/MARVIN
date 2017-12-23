@@ -22,12 +22,14 @@ class BaseLogger(object):
                               logging.WARNING :{"color":"y","background":None,"attrs":"bold"},
                               logging.ERROR   :{"color":"r","background":None,"attrs":"bold"},
                               logging.CRITICAL:{"color":"r","background":None,"attrs":None},
+                              marvin.LOGGER_PRIORITY_LEVEL:{"color":"g","background":None,"attrs":None}
                              }
         self.level_text = {logging.DEBUG  : "   DEBUG   |  ",
                           logging.INFO    : "   INFO    |  ",
                           logging.WARNING : "  WARNING  |  ",
                           logging.ERROR   : "   ERROR   |  ",
                           logging.CRITICAL: "  CRITICAL |  ",
+                          marvin.LOGGER_PRIORITY_LEVEL: "  PRIORITY |  ",
                          }
 
     def _colorOutput(self,message="default output",log_level=logging.INFO,prefix=""):
@@ -117,7 +119,21 @@ class BaseLogger(object):
             shouldPrint = True
         return shouldPrint
 
-
+    def _priority(self,message):
+        """
+        logs using level 60
+        input::
+            message (str): message to be logged
+        return::
+            shouldPrint (bool): indicator indicating whether or not the log_level
+            is less than the message priorty. This is used by Loggers inheritating
+            from this function to determine if they should print
+        """
+        self.logger.critical(message)
+        shouldPrint = False
+        if self.log_level <= marvin.LOGGER_PRIORITY_LEVEL and isinstance(self.filename,str):
+            shouldPrint = True
+        return shouldPrint
 
 class StatusLogger(BaseLogger):
     def __init__(self,*args):
@@ -187,6 +203,20 @@ class StatusLogger(BaseLogger):
         shouldPrint = self._critical(message)
         if shouldPrint:
             print( self._colorOutput(message,logging.CRITICAL,"STATUS | ") )
+
+    def priorty(self,message):
+        """
+        logging with loging level 60 and prints to terminal if it's above the log_level
+
+        input::
+            message (str): message to log and print (if log_level is less than message priorty)
+        return::
+            None
+        """
+        shouldPrint = self._critical(message)
+        if shouldPrint:
+            print( self._colorOutput(message,marvin.LOGGER_PRIORITY_LEVEL,"STATUS | ") )
+
 
     def explode(self,message):
         """

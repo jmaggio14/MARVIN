@@ -21,6 +21,8 @@ class CameraCapture(object):
         cap (cv2.VideoCapture): camera capture object
         _fourcc (str,tuple,list): current fourcc code
         _fourcc_val: current fourcc_val ( VideoCapture_fourcc(fourcc) )
+        self.frame_number (int): the number of the last frame
+        self.current_frame_id (str): the id of the last frame, structured "cam_id:frame_number"
 
     functions::
         read(): reads image frame
@@ -29,6 +31,7 @@ class CameraCapture(object):
         __setProp(): sets camera property
         __getProp(): gets camera property
         __debugFrame(): generates a static debuging frame
+        __createFrameId(): generates a frame_id
 
     properties::
         width::
@@ -72,8 +75,12 @@ class CameraCapture(object):
         self.cap = cv2.VideoCapture(self.cam_id)
         self._fourcc = fourcc
         self._fourcc_val = cv2.VideoWriter_fourcc(*self._fourcc)
+        # setting the codec
         self.__setProp(cv2.CAP_PROP_FOURCC,self._fourcc_val)
+
+
         self.frame_number = 0
+        self.current_frame_id = self.__createFrameId(self.cam_id,self.frame_number)
 
 
     def read(self):
@@ -88,11 +95,14 @@ class CameraCapture(object):
         """
         status = False
         if self.cap.isOpened():
-            status,frame = self.cap.read()
+            status,raw_frame = self.cap.read()
         if not status or not self.cap.isOpened():
-            frame = self.__debugFrame()
+            raw_frame = self.__debugFrame()
 
+        #updating the frame number and the current_frame_id
         self.frame_number += 1
+        self.current_frame_id = self.__createFrameId(self.cam_id,self.frame_number)
+        frame = marvin.MarvinImage(raw_frame,self.current_frame_id)
         return frame
 
     def getAllMetadata(self):
@@ -107,7 +117,7 @@ class CameraCapture(object):
         input::
             None
         return::
-            metadata(dict): dictionary containing all metadata values
+            metadata (dict): dictionary containing all metadata values
         """
         metadata = {
         "width":self.width,
@@ -121,15 +131,16 @@ class CameraCapture(object):
         "writer_dims":self.writer_dims,
         "fourcc":self.fourcc,
         "fourcc_val":self.fourcc_val,
-        "unix_time":time.time()
+        "unix_time":time.time(),
+        "id":self.current_frame_id
         }
         return metadata
 
     def readFrameAndMetadata(self):
         """
         UNTESTED!
-
         returns both the image frame and all associated metadata
+
         input::
             None
         return::
@@ -138,7 +149,7 @@ class CameraCapture(object):
         """
         frame = self.frame()
         metadata = self.metadata()
-        return frame,metadata
+        return frame, metadata
 
     def __setProp(self,flag,value):
         """
@@ -163,15 +174,17 @@ class CameraCapture(object):
             flag (opencv constant): flag indicating which property to get
 
         return::
-            None
+            the camera property requested
         """
         return self.cap.get()
 
     def __debugFrame(self):
         """
         builds a static debug frame containing text or a shape.
+
         input::
             None
+
         return::
             frame (np.ndarray): debug frame
         """
@@ -188,6 +201,25 @@ class CameraCapture(object):
                             5,
                             (255,255))
         return frame
+
+
+    def __createFrameId(self,cam_id,frame_number):
+        """
+        creates a frame_id from the camera id and the frame number by casting
+        the inputs to a string
+        frame_id is the in the format "cam_id:frame_number"
+
+        input::
+            cam_id (int,str): camera id
+            frame_number (int): frame_number
+
+        return::
+            frame_id (str): cam_id and frame_number cast to a string for later identification
+                            in the form of "cam_id:frame_number"
+        """
+        frame_id = str(cam_id) + str(frame_number)
+        return frame_id
+
 
     #width
     @property

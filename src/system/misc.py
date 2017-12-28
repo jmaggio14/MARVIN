@@ -23,8 +23,10 @@ def explode():
         None
     """
     try:
-        marvin.Status.critical("emergency exit called! EXITING MARVIN...")
+        marvin.Status.critical("emergency exit called! EXITING MARVIN!!!")
     except Exception as e:
+        print("possibly a problem with the Status Logger?")
+        print("emergency exit called! EXITING MARVIN!!!")
         pass
     sys.exit()
 

@@ -12,26 +12,25 @@ class CameraCapture(object):
         cam_id (int,str): camera id, this can be a video file, a camera path of
                     the type ('/dev/video#'), or an integer id (the last number in the camera path)
         fourcc (str,tuple,list): fourcc code for the video codec to be forced off the camera,
-                        reccomend sticking with MJPG (the default) as it is supported by most
-                        cammeras and generally results in a high framerate even
-                        on cheap camera hardware
+                        reccomend sticking with None for MJPG (the default) as it is supported by most
+                        cameras and generally results in a high framerate on cheap camera hardware
 
     attributes::
         cam_id (str,int): id of the camera being used, passed in as an input
         cap (cv2.VideoCapture): camera capture object
         _fourcc (str,tuple,list): current fourcc code
         _fourcc_val: current fourcc_val ( VideoCapture_fourcc(fourcc) )
-        self.frame_number (int): the number of the last frame
-        self.current_frame_id (str): the id of the last frame, structured "cam_id:frame_number"
+        frame_number (int): the number of the last frame
+        current_frame_id (str): the id of the last frame, structured "cam_id:frame_number"
 
     functions::
-        read(): reads image frame
+        read(): reads image frame and returns a marvin.MarvinImage object
         getAllMetadata(): retrieves all metadata at the current state
-        readFrameAndMetadata(): retrieves both the frame and metadata
-        __setProp(): sets camera property
-        __getProp(): gets camera property
+        [ REMOVED 12/28/17 ] readFrameAndMetadata(): retrieves both the frame and metadata
+        __setProp(flag,value): sets camera property
+        __getProp(flag): gets camera property
         __debugFrame(): generates a static debuging frame
-        __createFrameId(): generates a frame_id
+        __createFrameId(cam_id,frame_number): generates a frame_id
 
     properties::
         width::
@@ -67,8 +66,10 @@ class CameraCapture(object):
         fourcc_val::
             getter: retrieves the current fourcc_val using VideoCapture.get
     """
-    def __init__(self,cam_id=0,fourcc="MJPG"):
-        if marvin.typeCheck(cam_id,str):
+    def __init__(self,cam_id=0,fourcc=None):
+        if fourcc == None:
+            fourcc = "MJPG"
+        if isinstance(cam_id,str):
             if "/dev/video" in cam_id:
                 cam_id = int( cam_id.replace("/dev/video","") )
         self.cam_id = cam_id
@@ -91,7 +92,8 @@ class CameraCapture(object):
         input::
             None
         return::
-            image frame from the Capture Stream or static debug frame if reading fails
+            frame (marvin.MarvinImage) image frame from the Capture Stream or debugging frame
+                    if there is a problem with the capture
         """
         status = False
         if self.cap.isOpened():
@@ -101,8 +103,8 @@ class CameraCapture(object):
 
         #updating the frame number and the current_frame_id
         self.frame_number += 1
-        self.current_frame_id = self.__createFrameId(self.cam_id,self.frame_number)
-        frame = marvin.MarvinImage(raw_frame,self.current_frame_id)
+        metadata = self.getAllMetadata()
+        frame = marvin.MarvinImage(raw_frame,**metadata)
         return frame
 
     def getAllMetadata(self):
@@ -119,6 +121,8 @@ class CameraCapture(object):
         return::
             metadata (dict): dictionary containing all metadata values
         """
+        self.current_frame_id = self.__createFrameId(self.cam_id,self.frame_number)
+
         metadata = {
         "width":self.width,
         "height":self.height,
@@ -131,25 +135,25 @@ class CameraCapture(object):
         "writer_dims":self.writer_dims,
         "fourcc":self.fourcc,
         "fourcc_val":self.fourcc_val,
-        "unix_time":time.time(),
-        "id":self.current_frame_id
+        "capture_time":time.time(),
+        "frame_id":self.current_frame_id
         }
         return metadata
 
-    def readFrameAndMetadata(self):
-        """
-        UNTESTED!
-        returns both the image frame and all associated metadata
-
-        input::
-            None
-        return::
-            frame (np.ndarray): frame from the camera, see CameraCapture.read()
-            metadata (dict): metadata associated with the current frame, see CameraCapture.metadata()
-        """
-        frame = self.frame()
-        metadata = self.metadata()
-        return frame, metadata
+    # def readFrameAndMetadata(self):
+    #     """
+    #     UNTESTED!
+    #     returns both the image frame and all associated metadata
+    #
+    #     input::
+    #         None
+    #     return::
+    #         frame (np.ndarray): frame from the camera, see CameraCapture.read()
+    #         metadata (dict): metadata associated with the current frame, see CameraCapture.metadata()
+    #     """
+    #     frame = self.frame()
+    #     metadata = self.metadata()
+    #     return frame, metadata
 
     def __setProp(self,flag,value):
         """
@@ -176,7 +180,7 @@ class CameraCapture(object):
         return::
             the camera property requested
         """
-        return self.cap.get()
+        return self.cap.get(flag)
 
     def __debugFrame(self):
         """
@@ -217,14 +221,14 @@ class CameraCapture(object):
             frame_id (str): cam_id and frame_number cast to a string for later identification
                             in the form of "cam_id:frame_number"
         """
-        frame_id = str(cam_id) + str(frame_number)
+        frame_id = "{0}:{1}".format(str(cam_id),marvin.fileNumber(frame_number,6))
         return frame_id
 
 
     #width
     @property
     def width(self):
-        return self.__getProp(cv2.CAP_PROP_FRAME_WIDTH)
+        return int(self.__getProp(cv2.CAP_PROP_FRAME_WIDTH))
     @width.setter
     def width(self,value):
         self.__setProp(cv2.CAP_PROP_FRAME_WIDTH,value)
@@ -232,7 +236,7 @@ class CameraCapture(object):
     #height
     @property
     def height(self):
-        return self.__getProp(cv2.CAP_PROP_FRAME_HEIGHT)
+        return int(self.__getProp(cv2.CAP_PROP_FRAME_HEIGHT))
     @height.setter
     def height(self,value):
         self.__setProp(cv2.CAP_PROP_FRAME_HEIGHT,value)
@@ -320,13 +324,18 @@ if __name__ == "__main__":
     #     viewer.view(frame)
     print("successful capture test (dependent on a camera being on /dev/video0)")
     cap = CameraCapture("/dev/video0",("M","J","P","G"))
-    viewer = marvin.Cv2ImageViewer("video test")
+    viewer = marvin.ImageViewer("video test")
     timer = marvin.Timer()
 
     cap.exposure = 1000
 
-    timer.countdown = 10
+    timer.countdown = 20
+    cap.hue = .8
+    cap.contrast = .2
+    cap.exposure = .6
     while timer.countdown:
+        cap.fps = cap.fps - .01
         frame = cap.read()
+        print(frame.fps)
         viewer.view(frame)
         print(timer.countdown)

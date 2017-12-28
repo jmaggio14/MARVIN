@@ -22,6 +22,7 @@ class FrameContainer(object):
 
     attributes::
         src (np.ndarray): the source frame, probably the raw frame off of camera
+        id (string): the frame id, structured "cam_id:frame_number"
         metadata (dict): input metadata dictionary
         ORB (cv2.ORB): the ORB keypoint detector used to generate keypoints and descriptors of the frame
         cache (dict): dictionary containing all data that has already been computed
@@ -40,6 +41,7 @@ class FrameContainer(object):
     """
     def __init__(self,src,metadata,ORB=None):
         self.src = src
+        self.id = metadata["id"]
         self.metadata = metadata
         if isinstance(ORB,cv2.ORB):
             self.ORB = ORB

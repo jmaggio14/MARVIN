@@ -139,15 +139,25 @@ def boundaryCheck(var,boundaries,inclusive=True):
     if high_val in [None,'inf']: high_val = float('inf')
 
     if inclusive:
-        if var <= boundaries[1]:high_ok = True
-        else: high_ok = False
-        if var >= boundaries[0]: low_ok = True
-        else: low_ok = False
+        if var <= boundaries[1]:
+            high_ok = True
+        else:
+            high_ok = False
+
+        if var >= boundaries[0]:
+            low_ok = True
+        else:
+            low_ok = False
     else:
-        if var < boundaries[1]: high_ok = True
-        else: high_ok = False
-        if var > boundaries[0]: low_ok = True
-        else:low_ok = False
+        if var < boundaries[1]:
+            high_ok = True
+        else:
+            high_ok = False
+        if var > boundaries[0]:
+            low_ok = True
+        else:
+            low_ok = False
+
     in_bounds = low_ok and high_ok
     return in_bounds
 

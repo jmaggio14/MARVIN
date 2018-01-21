@@ -64,13 +64,22 @@ def fileNumber(file_number,number_digits=5):
     return::
         numbered_string (str): string of numbers with standard number of digits
     """
-    file_number_string = str(file_number)
+    file_number = int( file_number )
+    if file_number < 0:
+        file_number_is_negative = True
+    else:
+        file_number_is_negative = False
+
+    file_number_string = str( abs(file_number) )
     len_num_string = len(file_number_string)
 
     if len_num_string < number_digits:
         prefix = "0" * (number_digits - len_num_string)
     else:
         prefix = ""
+
+    if file_number_is_negative:
+        prefix = "-" + prefix
 
     numbered_string = prefix + file_number_string
     return numbered_string

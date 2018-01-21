@@ -3,7 +3,7 @@ import os
 
 def test_debug():
     marvin.init()
-    testingLogger = marvin.getLogger("TESTING LOGGER",log_level=10,logger_type=marvin.LOGGER_EVENT)
+    testing_logger = marvin.getLogger("TESTING LOGGER",log_level=10,logger_type=marvin.LOGGER_EVENT)
     try:
         raise TypeError
     except Exception as e:
@@ -15,16 +15,16 @@ def test_RandomNumberGenerator():
     """
 
     marvin.init()
-    testingLogger = marvin.getLogger("TESTING LOGGER",log_level=10,logger_type=marvin.LOGGER_EVENT)
+    testing_logger = marvin.getLogger("TESTING LOGGER",log_level=10,logger_type=marvin.LOGGER_EVENT)
     try:
 
-        testingLogger.info("printing 10 random numbers between 0 and 1...")
+        testing_logger.info("printing 10 random numbers between 0 and 1...")
         a = marvin.RandomNumberGenerator(0)
         for i in range(10):
             print( a.uniform(0,1,1) )
 
     except Exception as e:
-        testingLogger.critical("test_RandomNumberGenerator test failed")
+        testing_logger.critical("test_RandomNumberGenerator test failed")
         marvin.debug(e,False)
         return False
 
@@ -35,17 +35,17 @@ def test_Timer():
     import time
 
     marvin.init()
-    testingLogger = marvin.getLogger("TESTING LOGGER",log_level=10,logger_type=marvin.LOGGER_EVENT)
+    testing_logger = marvin.getLogger("TESTING LOGGER",log_level=10,logger_type=marvin.LOGGER_EVENT)
 
     timer = marvin.Timer()
     timer.countdown = 50
-    testingLogger.info("{0}".format( timer.countdown ))
+    testing_logger.info("{0}".format( timer.countdown ))
     time.sleep(3)
-    testingLogger.info("{0}".format( timer.countdown ))
-    testingLogger.info("reseting...")
+    testing_logger.info("{0}".format( timer.countdown ))
+    testing_logger.info("reseting...")
     timer.reset()
 
-    testingLogger.info("setting up a interval timer, we should be printing for 'hello world' ever second for 10 seconds")
+    testing_logger.info("setting up a interval timer, we should be printing for 'hello world' ever second for 10 seconds")
     def printText(text="Hello, World!"):
         print( time.time()," : ",text )
     args = ("Hello!... also args work!!!",)
@@ -55,7 +55,7 @@ def test_Timer():
 def test_quickImageView():
     import cv2
     marvin.init()
-    testingLogger = marvin.getLogger("TESTING LOGGER",log_level=10,logger_type=marvin.LOGGER_EVENT)
+    testing_logger = marvin.getLogger("TESTING LOGGER",log_level=10,logger_type=marvin.LOGGER_EVENT)
 
     data_path = os.path.dirname(os.path.realpath(__file__)) + "/data/"
     lenna_path = data_path + "lenna.png"

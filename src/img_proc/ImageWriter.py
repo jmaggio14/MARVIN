@@ -2,7 +2,7 @@ import marvin
 import cv2
 
 
-class Cv2ImageWriter(object):
+class ImageWriter(object):
     """
     Class that operates as a system that saves single frames to a specied output
     directory
@@ -38,12 +38,13 @@ class Cv2ImageWriter(object):
         return::
             None
         """
-        print(self.output_dir,marvin.fileNumber(self.image_number),self.base_filename)
+        self.image_number += 1
         filename = marvin.preventOverwrite(self.output_dir + marvin.fileNumber(self.image_number) + self.base_filename)
+
         if not isinstance(self.size,type(None)):
             frame = cv2.resize(frame,(self.size[1],self.size[0]),interpolation=self.interpolation)
+
         cv2.imwrite(filename,frame)
-        self.image_number += 1
 
 
 

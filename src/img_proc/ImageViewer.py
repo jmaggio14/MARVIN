@@ -3,7 +3,7 @@ import cv2
 from PIL import Image
 import numpy as np
 
-class Cv2ImageViewer(object):
+class ImageViewer(object):
     """
     Class to simplify displaying images using opencv windows. Also has
     functionality to resize images automatically if desired
@@ -16,11 +16,20 @@ class Cv2ImageViewer(object):
         self.window_name = str(window_name)
         self.size = size
         self.interpolation = interpolation
+
+    def open(self):
+        """
+        opens the image viewer, automatically called in __init__
+        input::
+            None
+        return::
+            None
+        """
         cv2.namedWindow(self.window_name)
 
     def view(self,frame,force_waitkey=True):
         """
-        displays the frame passed into it
+        displays the frame passed into it, reopens itself if it
         input::
             frame (np.ndarray): image to be displayed
         return::
@@ -30,10 +39,22 @@ class Cv2ImageViewer(object):
         """
         if isinstance(self.size,(tuple,list)):
             frame = cv2.resize(frame,(self.size[1],self.size[0]),interpolation=self.interpolation)
+        if not isinstance(frame,np.ndarray):
+            frame = marvin.DebugImage("{0} passed into ImageViewer: {1}".format(type(frame),self.window_name) )
+
         cv2.imshow(self.window_name,frame)
         if force_waitkey:
             cv2.waitKey( force_waitkey )
 
+    def close(self):
+        """
+        closes the image viewing window
+        input::
+            None
+        return::
+            None
+        """
+        cv2.destroyWindow( self.window_name )
 
 def normalizeAndBin(src,max_count=255,cast_type=np.uint8):
     """
@@ -67,5 +88,7 @@ def quickImageView(img,normalize_and_bin=False):
     """
     if normalize_and_bin:
         img = normalizeAndBin(img,max_count=255,cast_type=np.uint8)
-    img = Image.fromarray( np.flip(img,2) )
+    if len(img.shape) > 2:
+        img = np.flip(img,2)
+    img = Image.fromarray( img )
     img.show("quickView image")

@@ -31,7 +31,6 @@ EXTENSIONS_DICT = {'py': '#',\
         'js': '//',\
         'sh': '#',\
         'gitignore': '#',\
-        'md': '#',\
         'Dockerfile': '#',\
         'yml': '#',\
         'rc': '#',\

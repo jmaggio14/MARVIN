@@ -92,6 +92,7 @@ def apply_header(header, filename):
         return 0
     with open(filename, 'r+') as filestream:
         content = filestream.read()
+        filesteam.seek(0)
         filestream.write("\n".join(header))
         filestream.write(content)
     return 0
@@ -105,7 +106,7 @@ def evaluate_header(header, filename, modify):
         return apply_header(header, filename)
     return print_valid_header(header, filename)
 
-def enforce_header(unformatted_license, directory, modify=True):
+def enforce_header(unformatted_license, directory, modify=False):
     """
     Recursively iterates over target directory and finds all known
     file types and checks to see whether or not they conform to the header

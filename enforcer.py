@@ -8,6 +8,9 @@
 # work. If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.
 #
 #
+"""
+License header enforcer for this project
+"""
 import sys
 import os
 
@@ -24,65 +27,112 @@ work. If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.
 
 """
 
-EXTENSIONS_DICT = { 'py': '#',\
-        'js': '\\\\',\
+EXTENSIONS_DICT = {'py': '#',\
+        'js': '//',\
         'sh': '#',\
         'gitignore': '#',\
         'md': '#',\
         'Dockerfile': '#',\
         'yml': '#',\
         'rc': '#',\
+        'java': '//',\
+        'c': '//',\
+        'cpp': '//',\
+        'h': '//',\
+        'hpp': '//',\
+        'rb': '#',\
         }
 
-def generate_header(char):
-    license = []
-    split_license = LICENSE_HEADER.split('\n')
-    for line in split_license:
-        license.append((char + ' ' + line).rstrip())
-    return license, len(split_license)
-
-def apply_header(filename):
+def generate_header(unformatted_license, filename):
+    """
+    Generates the list of strings specific to the given character as
+    a comment
+    
+    :returns license header lines in list
+    """
     extension = filename.split('/')[-1].split('\\')[-1].split('.')[-1]
     if extension not in EXTENSIONS_DICT:
         print 'Warning: unknown extension associated with:', filename
-        return False
-    license, lines = generate_header(EXTENSIONS_DICT[extension])
+        return []
+    char = EXTENSIONS_DICT[extension]
+    return [(char + ' ' + line).rstrip()\
+            for line in unformatted_license.split('\n')]
+
+def check_valid_header(header, filename):
+    """
+    Checks to see if the given file contents has a valid header on top
+    """
+    with open(filename, 'r') as filestream:
+        content = filestream.read().split('\n')
+        if len(content) < len(header):
+            return False
+        for line in range(0, len(header)):
+            if header[line] != content[line]:
+                return False
+    return True
+
+def print_valid_header(header, filename):
+    """
+    Simply checks to see if the header is valid, and prints accordingly
+    """
+    if check_valid_header(header, filename):
+        print 'Valid:', filename
+        return 0
+    print 'Invalid', filename
+    return -1
+
+def apply_header(header, filename):
+    """
+    Applies the generated license header to the target file, comment
+    for license header is generated through the extension dictionary
+
+    :return True on success, false if unknown extension
+    """
+    if print_valid_header(header, filename) == 0:
+        return 0
     with open(filename, 'r+') as filestream:
         content = filestream.read()
-        split_content = content.split('\n')
-        filestream.seek(0)
-        if len(split_content) < lines:
-            filestream.write("\n".join(license))
-            filestream.write(content)
-        else:
-            for line in range(0, lines):
-                if license[line] != split_content[line]:
-                    filestream.write("\n".join(license) + "\n")
-                    filestream.write(content)
-                    break
-        return True
+        filestream.write("\n".join(header))
+        filestream.write(content)
+    return 0
 
-def enforce_header(directory):
+def evaluate_header(header, filename, modify):
+    """
+    Runs either the apply_header or print_valid_header
+    depending on modify boolean
+    """
+    if modify:
+        return apply_header(header, filename)
+    return print_valid_header(header, filename)
+
+def enforce_header(unformatted_license, directory, modify=True):
+    """
+    Recursively iterates over target directory and finds all known
+    file types and checks to see whether or not they conform to the header
+    
+    :arg modify If modify is set to True then it will inject the header if it
+    does not exist
+    :return 0 on success, -1 on failure
+    """
     returns = 0
     if os.path.isfile(os.path.abspath(directory)):
-        result = apply_header(directory)
-        if result:
-            print 'Valid:', directory
-            return 0
-        return -1
+        header = generate_header(unformatted_license, directory)
+        return evaluate_header(header, directory, modify)
     for obj in os.listdir(directory):
         if obj not in SKIP:
             if os.path.isfile(os.path.abspath(obj)):
-                if not apply_header(os.path.join(directory, obj)):
+                header = generate_header(unformatted_license, obj);
+                if evaluate_header(header, obj, modify) == -1:
                     returns = -1
-                else:
-                    print 'Valid:', os.path.join(directory, obj)
-            elif enforce_header(os.path.join(directory, obj)) == -1:
+            elif enforce_header(unformatted_license,\
+                    os.path.join(directory, obj)) == -1:
                 returns = -1
-            else:
-                print 'Valid:', os.path.join(directory, obj)
     return returns
 
 if __name__ == '__main__':
-    sys.exit(enforce_header('./'))
-
+    result = enforce_header(LICENSE_HEADER, './')
+    if result == 0:
+        print "Successful enforcement"
+    else:
+        print "Failed enforcement"
+    sys.exit(result)

@@ -51,7 +51,7 @@ def generate_header(unformatted_license, filename):
     """
     extension = filename.split('/')[-1].split('\\')[-1].split('.')[-1]
     if extension not in EXTENSIONS_DICT:
-        print 'Warning: unknown extension associated with:', filename
+        print('Warning: unknown extension associated with:', filename)
         return []
     char = EXTENSIONS_DICT[extension]
     return [(char + ' ' + line).rstrip()\
@@ -75,9 +75,9 @@ def print_valid_header(header, filename):
     Simply checks to see if the header is valid, and prints accordingly
     """
     if check_valid_header(header, filename):
-        print 'Valid:', filename
+        print('Valid:', filename)
         return 0
-    print 'Invalid', filename
+    print('Invalid', filename)
     return -1
 
 def apply_header(header, filename):
@@ -91,8 +91,8 @@ def apply_header(header, filename):
         return 0
     with open(filename, 'r+') as filestream:
         content = filestream.read()
-        filesteam.seek(0)
-        filestream.write("\n".join(header))
+        filestream.seek(0)
+        filestream.write("\n".join(header) + "\n")
         filestream.write(content)
     return 0
 
@@ -101,9 +101,12 @@ def evaluate_header(header, filename, modify):
     Runs either the apply_header or print_valid_header
     depending on modify boolean
     """
-    if modify:
-        return apply_header(header, filename)
-    return print_valid_header(header, filename)
+    try:
+        if modify:
+            return apply_header(header, filename)
+        return print_valid_header(header, filename)
+    except UnicodeDecodeError:
+        return 0
 
 def enforce_header(unformatted_license, directory, modify=False):
     """
@@ -130,9 +133,9 @@ def enforce_header(unformatted_license, directory, modify=False):
     return returns
 
 if __name__ == '__main__':
-    result = enforce_header(LICENSE_HEADER, './')
+    result = enforce_header(LICENSE_HEADER, './', False)
     if result == 0:
-        print "Successful enforcement"
+        print('Successful enforcement')
     else:
-        print "Failed enforcement"
+        print('Failed enforcement')
     sys.exit(result)

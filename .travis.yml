@@ -9,6 +9,6 @@ install:
   - pip install pylint
 
 script: 
-  - pylint client/src client/tests server/src server/tests --rcfile=pylint.rc 
+  - pylint control/src control/tests client/src client/tests server/src server/tests 
   - python enforcer.py
 

@@ -16,9 +16,9 @@ python:
   - 3.6
 
 install: 
-  - pip install pylint
+  - pip3 install pylint
 
 script: 
-  - pylint control/src control/tests client/src client/tests server/src server/tests 
+  - pylint control/src control/tests payload/src payload/tests pipeline/src pipeline/tests 
   - python enforcer.py
 

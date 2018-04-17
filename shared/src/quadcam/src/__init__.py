@@ -8,4 +8,6 @@
 # work. If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.
 #
 #
-from .Payload import Payload
+
+from .Exceptions import *
+from .MultiCam import *

@@ -8,4 +8,8 @@
 # work. If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.
 #
 #
-from .Payload import Payload
+
+from . import payload
+from . import pipeline
+from . import control
+from .shared import *

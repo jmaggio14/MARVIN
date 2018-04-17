@@ -13,12 +13,29 @@ sudo: false
 language: python
 
 python:
+  - 3.5
   - 3.6
 
-install: 
+install:
   - pip3 install pylint
+  - pip3 install opencv-python
+  - pip3 install numpy
+  - pip3 install pillow
+  - pip3 install termcolor
 
-script: 
-  - pylint control/src control/tests payload/src payload/tests pipeline/src pipeline/tests 
+script:
+  #primary submodules
+  - pylint control/src control/tests
+  - pylint payload/src payload/tests
+  - pylint pipeline/src pipeline/tests
+  - pylint shared/src shared/tests
+  
+  #shared/submodules
+  - pylint shared/imtoolkit/src shared/imtoolkit/tests
+  - pylint shared/quadcam/src shared/quadcam/tests
+
+  #running license enforcer
   - python enforcer.py
 
+  #NOTE: separate automated_tests down here::
+  - python payload/tests/test_payload.py
